@@ -1,0 +1,28 @@
+# 敏感信息文件
+.env
+*.env
+
+# Python缓存文件
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志文件
+*.log
+
+# 数据文件（可选，根据需要调整）
+stock_data/
+stock_data_*.csv
