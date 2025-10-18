@@ -26,3 +26,5 @@ Thumbs.db
 # 数据文件（可选，根据需要调整）
 stock_data/
 stock_data_*.csv
+.venv
+backtrader/stock_datas
