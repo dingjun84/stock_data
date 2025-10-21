@@ -1,5 +1,4 @@
 import backtrader as bt
-import pandas as pd
 import sys
 import os 
 sys.path.append('.')
@@ -52,22 +51,20 @@ def tushare2backtrader(df):
 if __name__ == '__main__':
     # 遍历stock_datas/daily下的文件
     # ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount
-    parent_dir = 'stock_datas/daily'
+    import pandas as pd
     i = 0
-    for file in os.listdir(parent_dir):
+    for file in os.listdir('stock_datas/daily'):
         if i > 2:
             break
 
         if file.endswith('.csv'):
-            df = pd.read_csv(f'{parent_dir}/{file}', parse_dates=True)
+            df = pd.read_csv(f'stock_datas/daily/{file}', parse_dates=True)
             df = tushare2backtrader(df)
             data = bt.feeds.PandasData(dataname=df)
             cerebro = bt.Cerebro()
             cerebro.addstrategy(hit_limitup_more_volume_double.HitLimitUpMoreVolumeDouble,limitup_ratio=0.1, volume_ratio=2.0, decrease_ratio=0.03)
             cerebro.adddata(data)
             cerebro.broker.set_cash(1000000)
-            cerebro.broker.setcommission(commission=0.0003)
             cerebro.run()
-            # cerebro.plot()
             i += 1
             print(f'{file} done')   
