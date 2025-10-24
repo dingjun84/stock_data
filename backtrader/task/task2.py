@@ -2,7 +2,8 @@ import backtrader as bt
 import sys
 import os 
 sys.path.append('.')
-from strategy import hit_limitup_more_volume_double 
+from strategy import hit_limitup_more_volume_double ,test_strategy
+
 
 """
 tushare数据格式
@@ -54,7 +55,7 @@ if __name__ == '__main__':
     import pandas as pd
     i = 0
     for file in os.listdir('stock_datas/daily'):
-        if i > 2:
+        if i > 1:
             break
 
         if file.endswith('.csv'):
@@ -62,7 +63,7 @@ if __name__ == '__main__':
             df = tushare2backtrader(df)
             data = bt.feeds.PandasData(dataname=df)
             cerebro = bt.Cerebro()
-            cerebro.addstrategy(hit_limitup_more_volume_double.HitLimitUpMoreVolumeDouble,limitup_ratio=0.1, volume_ratio=2.0, decrease_ratio=0.03)
+            cerebro.addstrategy(test_strategy.TestStrategy)
             cerebro.adddata(data)
             cerebro.broker.set_cash(1000000)
             cerebro.run()
