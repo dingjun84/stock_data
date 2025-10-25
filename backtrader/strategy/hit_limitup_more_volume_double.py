@@ -12,14 +12,14 @@ class HitLimitUpMoreVolumeDouble(bt.Strategy):
         self.order = None
 
          # Indicators for the plotting show
-        bt.indicators.ExponentialMovingAverage(self.datas[0], period=25)
-        bt.indicators.WeightedMovingAverage(self.datas[0], period=25,
-                                            subplot=True)
-        bt.indicators.StochasticSlow(self.datas[0])
-        bt.indicators.MACDHisto(self.datas[0])
-        rsi = bt.indicators.RSI(self.datas[0])
-        bt.indicators.SmoothedMovingAverage(rsi, period=10)
-        bt.indicators.ATR(self.datas[0], plot=False)
+        # bt.indicators.ExponentialMovingAverage(self.datas[0], period=25)
+        # bt.indicators.WeightedMovingAverage(self.datas[0], period=25,
+        #                                     subplot=True)
+        # bt.indicators.StochasticSlow(self.datas[0])
+        # bt.indicators.MACDHisto(self.datas[0])
+        # rsi = bt.indicators.RSI(self.datas[0])
+        # bt.indicators.SmoothedMovingAverage(rsi, period=10)
+        # bt.indicators.ATR(self.datas[0], plot=False)
 
 
     def is_limit_up(self,open:float,close:float,limitup_ratio:float):
@@ -63,40 +63,49 @@ class HitLimitUpMoreVolumeDouble(bt.Strategy):
         # 打印所有条件
 
         # print(f'日期 {self.datas[0].datetime.date(0)} 涨停: {limit_up_bool}, 阴线倍増: {volume_double_bool}, 四天前收盘价低于五天前收盘价的0.1%: {close_diff_bool}, 小幅回撤: {close_diff_3_bool and close_diff_2_bool and close_diff_1_bool}')
-        if self.position.size > 0 or self.order:
-            print(self.position,self.order)
+        
         # 所有条件都满足
         if not self.order and limit_up_bool and volume_double_bool and close_diff_bool and close_diff_3_bool and close_diff_2_bool and close_diff_1_bool:
-            self.order =self.buy(size=self.trade_size,exectype=bt.Order.Market)
-            print(f'买入信号，日期 {self.datas[0].datetime.date(0)} 购买价格 {self.data.open[0]}')
-            return True
+            if self.position.size == 0:
+                self.order =self.buy(size=self.trade_size,exectype=bt.Order.Market)
+                print(f'买入信号，日期 {self.datas[0].datetime.date(0)} 购买价格 {self.data.open[0]}')
         
         # todo:先简单处理，上涨20%，或下跌8%，则卖出
         if self.position and self.position.size >0 and (self.datas[0].close[0] >= self.position.price * (1 + 0.2) ):
             self.order = self.sell(size=self.position.size,exectype=bt.Order.Market)
             print(f'盈利卖出 日期 {self.datas[0].datetime.date(0)} 卖出价格 {self.datas[0].close[0]}')
-            return False
+
         
-        if self.position and self.position.size >0 and (self.datas[0].close[0] <= self.position.price * (1 - 0.08)):
+        elif self.position and self.position.size >0 and (self.datas[0].close[0] <= self.position.price * (1 - 0.08)):
             self.order = self.sell(size=self.trade_size,exectype=bt.Order.Market)
             print(f'亏损卖出 日期 {self.datas[0].datetime.date(0)} 卖出价格 {self.datas[0].close[0]}')
-            return False
 
     def notify_order(self, order):
         # if order.status in [order.Submitted, order.Accepted]:
         #     print(f'日期 {self.datas[0].datetime.date(0)} 订单已提交/已接受，等待执行，持仓:{self.position}')
         #     return False
 
-        if order.status in [order.Completed,order.Submitted, order.Accepted]:
+        if order.status in [order.Completed]:
             if order.isbuy():
                 print(f'日期 {self.datas[0].datetime.date(0)} 购买价格 {order.executed.price}，购买数量 {order.executed.size}，购买佣金 {order.executed.comm}')
             elif order.issell():
                 print(f'日期 {self.datas[0].datetime.date(0)} 卖出价格 {order.executed.price}，卖出数量 {order.executed.size}，卖出佣金 {order.executed.comm}')
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
             print(f'日期 {self.datas[0].datetime.date(0)} 订单取消/保证金不足/拒绝')
-        
-        self.order = None
+
 
     def notify_trade(self, trade):
-        if trade.isclosed:
-            print(f'日期 {self.datas[0].datetime.date(0)} 交易关闭，交易毛利润 {trade.pnl}，交易净利润 {trade.pnlcomm}')
+        print(f'日期 {self.datas[0].datetime.date(0)} 交易关闭，交易状态 {trade.status}，交易毛利润 {trade.pnl}，交易净利润 {trade.pnlcomm}')
+        self.order = None
+
+        # 获取当前可用现金
+        cash = self.broker.get_cash()
+        # 获取当前持仓的总价值（股票市值）
+        value = self.broker.get_value()
+        
+        # 打印信息（可根据需求调整打印频率，例如每天打印一次）
+        print(f"日期: {self.data.datetime.date(0)}")
+        print(f"当前现金: {cash:.2f}")
+        print(f"股票总价值: {value - cash:.2f}")  # 总价值 - 现金 = 股票价值
+        print(f"账户总资产: {value:.2f}")
+        print("------------------------")

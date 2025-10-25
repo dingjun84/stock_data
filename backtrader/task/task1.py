@@ -55,7 +55,7 @@ if __name__ == '__main__':
     parent_dir = 'stock_datas/daily'
     i = 0
     for file in os.listdir(parent_dir):
-        if i > 2:
+        if i > 1:
             break
 
         if file.endswith('.csv'):
@@ -67,7 +67,11 @@ if __name__ == '__main__':
             cerebro.adddata(data)
             cerebro.broker.set_cash(1000000)
             cerebro.broker.setcommission(commission=0.0003)
+            # 绘制交易利润曲线
+            # cerebro.addanalyzer(bt.analyzers.Transactions)
             cerebro.run()
+            # 输出交易利润
+            print(f"Total crash: {cerebro.broker.getvalue()}")
             # cerebro.plot()
             i += 1
             print(f'{file} done')   

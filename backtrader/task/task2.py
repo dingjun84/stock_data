@@ -58,14 +58,35 @@ if __name__ == '__main__':
         if i > 1:
             break
 
+        # 检查文件是否为CSV格式
         if file.endswith('.csv'):
+            # 读取股票日线数据CSV文件，并自动解析日期列
             df = pd.read_csv(f'stock_datas/daily/{file}', parse_dates=True)
+            
+            # 将tushare格式的数据转换为backtrader兼容的格式
             df = tushare2backtrader(df)
+            
+            # 创建backtrader数据对象，用于向Cerebro引擎提供数据
             data = bt.feeds.PandasData(dataname=df)
+            
+            # 创建回测引擎实例
             cerebro = bt.Cerebro()
+            
+            # 添加测试策略到回测引擎
             cerebro.addstrategy(test_strategy.TestStrategy)
+            
+            # 添加数据到回测引擎
             cerebro.adddata(data)
+            
+            # 设置每次交易的固定仓位大小为100股
+            cerebro.addsizer(bt.sizers.FixedSize, stake=100)
+            
+            # 设置初始资金为100万元
             cerebro.broker.set_cash(1000000)
+            
+            # 设置佣金率为0.03%（万分之三）
+            cerebro.broker.setcommission(commission=0.0003)
+            
             cerebro.run()
             i += 1
-            print(f'{file} done')   
+            print(f'{file} done')
