@@ -1,8 +1,10 @@
 import backtrader as bt
 import sys
+import time
 import os 
+import pandas as pd
 sys.path.append('.')
-from strategy import hit_limitup_more_volume_double ,simple_buy_sell_strategy
+from strategy import simple_buy_sell_strategy
 
 
 """
@@ -50,43 +52,38 @@ def tushare2backtrader(df):
     return df
 
 if __name__ == '__main__':
-    # 遍历stock_datas/daily下的文件
-    # ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount
-    import pandas as pd
-    i = 0
-    for file in os.listdir('stock_datas/daily'):
-        if i > 1:
-            break
 
-        # 检查文件是否为CSV格式
-        if file.endswith('.csv'):
-            # 读取股票日线数据CSV文件，并自动解析日期列
-            df = pd.read_csv(f'stock_datas/daily/{file}', parse_dates=True)
+    # ts_code,trade_date,open,high,low,close,pre_close,change,pct_chg,vol,amount
+
+   
+    df = pd.read_csv(f'stock_datas/test_data/test_data1.csv', parse_dates=True)
             
-            # 将tushare格式的数据转换为backtrader兼容的格式
-            df = tushare2backtrader(df)
-            
-            # 创建backtrader数据对象，用于向Cerebro引擎提供数据
-            data = bt.feeds.PandasData(dataname=df)
-            
-            # 创建回测引擎实例
-            cerebro = bt.Cerebro()
-            
-            # 添加测试策略到回测引擎
-            cerebro.addstrategy(simple_buy_sell_strategy.TestStrategy)
-            
-            # 添加数据到回测引擎
-            cerebro.adddata(data)
-            
-            # 设置每次交易的固定仓位大小为100股
-            cerebro.addsizer(bt.sizers.FixedSize, stake=100)
-            
-            # 设置初始资金为100万元
-            cerebro.broker.set_cash(1000000)
-            
-            # 设置佣金率为0.03%（万分之三）
-            cerebro.broker.setcommission(commission=0.0003)
-            
-            cerebro.run()
-            i += 1
-            print(f'{file} done')
+    # 将tushare格式的数据转换为backtrader兼容的格式
+    df = tushare2backtrader(df)
+    
+    # 创建backtrader数据对象，用于向Cerebro引擎提供数据
+    data = bt.feeds.PandasData(dataname=df)
+    
+    # 创建回测引擎实例
+    cerebro = bt.Cerebro()
+    
+    # 添加测试策略到回测引擎
+    cerebro.addstrategy(simple_buy_sell_strategy.TestStrategy)
+    
+    # 添加数据到回测引擎
+    cerebro.adddata(data)
+    
+    # 设置每次交易的固定仓位大小为100股
+    cerebro.addsizer(bt.sizers.FixedSize, stake=100)
+    
+    # 设置初始资金为100万元
+    cerebro.broker.set_cash(1000000)
+    
+    # 设置佣金率为0.03%（万分之三）
+    cerebro.broker.setcommission(commission=0.0003)
+    
+    cerebro.run()
+
+    # sleep 5 seconds
+    time.sleep(5)
+    

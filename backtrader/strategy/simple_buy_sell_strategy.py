@@ -11,13 +11,25 @@ class TestStrategy(bt.Strategy):
 
     # 核心交易逻辑方法，在每个K线周期执行一次
     def next(self):
+        print(f"next, date: {self.datas[0].datetime.date(0)},open:{self.datas[0].open[0]},close:{self.datas[0].close[0]},volume:{self.datas[0].volume[0]}")
+        # 获取当前可用现金
+        cash = self.broker.get_cash()
+        # 获取当前持仓的总价值（股票市值+现金）
+        value = self.broker.get_value()
+        
+        # 打印信息（可根据需求调整打印频率，例如每天打印一次）
+        print(f"日期: {self.data.datetime.date(0)}")
+        print(f"当前现金: {cash:.2f}")
+        print(f"股票总价值: {value - cash:.2f}")  # 总价值 - 现金 = 股票价值
+        print(f"账户总资产: {value:.2f}")
+        print("------------------------")
         # 检查是否有未完成的订单，如果有则不提交新订单
         if self.order:
             print(f"Order {self.order.ref} is pending")
             return
 
         # 交易逻辑：如果当天收盘价高于开盘价，则考虑买入
-        if self.datas[0].close > self.datas[0].open:
+        if self.datas[0].close[0] > self.datas[0].open[0]:
             # 如果已经持有多头头寸，则不重复买入
             if self.position.size > 0:
                 return
