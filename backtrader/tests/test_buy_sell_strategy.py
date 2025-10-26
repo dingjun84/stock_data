@@ -69,6 +69,8 @@ if __name__ == '__main__':
     
     # 添加测试策略到回测引擎
     cerebro.addstrategy(simple_buy_sell_strategy.TestStrategy)
+    # 添加夏普比率分析器（内置）
+    cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe',timeframe=bt.TimeFrame.Days, riskfreerate=0.03)
     
     # 添加数据到回测引擎
     cerebro.adddata(data)
@@ -82,7 +84,14 @@ if __name__ == '__main__':
     # 设置佣金率为0.03%（万分之三）
     cerebro.broker.setcommission(commission=0.0003)
     
-    cerebro.run()
+    results = cerebro.run()
+    my_strategy = results[0]
+    # 打印夏普比率
+    print(f"夏普比率: {my_strategy.analyzers.sharpe.get_analysis()['sharperatio']}")
+
+    # 打印胜负次率
+    print(f"胜负率：{round(my_strategy.win_count*100.0 / (my_strategy.win_count + my_strategy.loss_count), 2)}% 胜利次数: {my_strategy.win_count}，失败次数: {my_strategy.loss_count}，总交易次数: {my_strategy.win_count + my_strategy.loss_count}")
+
 
     # sleep 5 seconds
     time.sleep(5)
