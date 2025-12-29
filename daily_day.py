@@ -71,10 +71,10 @@ if __name__ == '__main__':
                 start_date = next_dt.strftime('%Y%m%d')
             else:
                 print(f"未能从现有文件中读取到有效日期，使用默认起始日期")
-                start_date = '20251011'
+                start_date = '20151011'
         else:
             print(f"未找到现有数据文件，使用默认起始日期")
-            start_date = '20251011'
+            start_date = '20151011'
         
         # 获取当前日期
         today = datetime.now().strftime('%Y%m%d')

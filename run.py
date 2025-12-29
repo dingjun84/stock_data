@@ -145,10 +145,10 @@ def check_and_fetch_missing_stocks():
             end_date = latest_date_in_files
             print(f"✓ 检测到现有数据最新日期: {end_date}")
         else:
-            end_date = '20251010'
+            end_date = '20251227'
             print(f"未能检测到有效日期，使用默认截止日期: {end_date}")
     else:
-        end_date = '20251010'
+        end_date = '20251227'
         print(f"未找到现有数据文件，使用默认截止日期: {end_date}")
     
     print(f"新股票将拉取数据到: {end_date}")
@@ -215,6 +215,8 @@ def check_and_fetch_missing_stocks():
                 pass
         
         # 拉取数据
+        if list_date <= "20151011":
+            list_date = "20151011"
         if fetch_stock_history(pro, ts_code, stock_name, list_date, end_date, output_file):
             success_count += 1
         else:
